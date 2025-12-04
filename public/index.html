@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Unraid Companion</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="app__header">
+        <div class="app__heading">
+          <div class="app__heading-row">
+            <p class="eyebrow">UNRAID COMPANION</p>
+            <button class="dashboard-link" type="button" data-dashboard-link>
+              <span class="dashboard-link__icon" aria-hidden="true">U</span>
+              <span>Dashboard</span>
+            </button>
+          </div>
+          <div class="app__heading-row app__heading-row--name">
+            <h1 data-host>Not configured</h1>
+          </div>
+          <div class="app__meta">
+            <p class="subtitle" data-updated>Waiting for first refresh…</p>
+            <p class="subtitle" data-uptime-top>Uptime --</p>
+          </div>
+        </div>
+        <div class="app__actions">
+          <button id="open-settings" class="ghost-button" type="button">Settings</button>
+          <button id="refresh-btn" class="refresh-button">Refresh</button>
+        </div>
+      </header>
+
+      <section id="error-banner" class="error hidden"></section>
+
+      <section class="stat-grid">
+        <article class="stat-card">
+          <div class="stat-card__title">CPU</div>
+          <div class="stat-card__value" data-cpu-value>-- %</div>
+          <div class="progress">
+            <div class="progress__fill" data-cpu-bar style="width:0%"></div>
+          </div>
+        </article>
+
+        <article class="stat-card">
+          <div class="stat-card__title">Memory</div>
+          <div class="stat-card__value" data-mem-value>-- %</div>
+          <div class="progress">
+            <div class="progress__fill" data-mem-bar style="width:0%"></div>
+          </div>
+          <p class="stat-card__meta" data-mem-meta>-- / -- GB</p>
+        </article>
+
+        <article class="stat-card">
+          <div class="stat-card__title">Array</div>
+          <div class="stat-card__value" data-array-value>-- %</div>
+          <div class="progress">
+            <div class="progress__fill" data-array-bar style="width:0%"></div>
+          </div>
+          <p class="stat-card__meta" data-array-meta>-- / -- TB</p>
+        </article>
+
+        <article class="stat-card">
+          <div class="stat-card__title">Inbound</div>
+          <div class="stat-card__value" data-net-in>-- Mbps</div>
+          <p class="stat-card__meta" data-net-interface>Interface --</p>
+        </article>
+
+        <article class="stat-card">
+          <div class="stat-card__title">Outbound</div>
+          <div class="stat-card__value" data-net-out>-- Mbps</div>
+          <p class="stat-card__meta" data-net-interface-out>Interface --</p>
+        </article>
+      </section>
+
+      <section class="docker-section" data-docker-section>
+        <div class="docker-section__header">
+          <div>
+            <p class="eyebrow">DOCKER CONTAINERS</p>
+            <h2>Containers</h2>
+          </div>
+          <p class="subtitle" data-container-count>-- running</p>
+        </div>
+        <div class="docker-group">
+          <h3 class="docker-group__title">Active</h3>
+          <ul class="docker-list" data-containers-active>
+            <li class="docker-list__empty">No active containers.</li>
+          </ul>
+        </div>
+        <div class="docker-group" data-docker-inactive>
+          <h3 class="docker-group__title">Inactive</h3>
+          <ul class="docker-list" data-containers-inactive>
+            <li class="docker-list__empty">No inactive containers.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="vm-section" data-vm-section>
+        <div class="vm-section__header">
+          <div>
+            <p class="eyebrow">VIRTUAL MACHINES</p>
+            <h2>VMs</h2>
+          </div>
+          <p class="subtitle" data-vm-count>-- running</p>
+        </div>
+        <div class="vm-group">
+          <h3 class="vm-group__title">Active</h3>
+          <ul class="vm-list" data-vms-active>
+            <li class="vm-list__empty">No active VMs.</li>
+          </ul>
+        </div>
+        <div class="vm-group" data-vm-inactive>
+          <h3 class="vm-group__title">Inactive</h3>
+          <ul class="vm-list" data-vms-inactive>
+            <li class="vm-list__empty">No inactive VMs.</li>
+          </ul>
+        </div>
+      </section>
+    </div>
+
+    <div class="error-screen hidden" data-error-screen>
+      <div class="error-screen__card">
+        <div>
+          <p class="eyebrow">CONNECTION ISSUE</p>
+          <h2>We can’t reach your Unraid server</h2>
+          <p class="error-screen__message" data-error-screen-message>
+            Please confirm the server is online and reachable over SSH.
+          </p>
+        </div>
+        <div class="error-screen__actions">
+          <button type="button" class="ghost-button" id="error-settings-btn">Edit Settings</button>
+          <button type="button" class="primary-button" id="error-retry-btn">Try Again</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="settings-overlay" class="settings-overlay hidden" aria-hidden="true">
+      <div class="settings-panel" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+        <header class="settings-panel__header">
+          <div>
+            <p class="eyebrow">SETTINGS</p>
+            <h2 id="settings-title">Server & Refresh</h2>
+          </div>
+          <button type="button" id="settings-close" class="ghost-button">Close</button>
+        </header>
+        <form id="settings-form" class="settings-form">
+          <div class="settings-grid">
+            <label data-settings-transport>
+              <span>Connection type</span>
+              <select name="transport" id="settings-transport">
+                <option value="ssh">SSH</option>
+                <option value="ws">WebSocket</option>
+              </select>
+            </label>
+            <label data-settings-ssh-only>
+              <span>Host</span>
+              <input type="text" name="host" id="settings-host" required />
+            </label>
+            <label data-settings-ssh-only>
+              <span>Port</span>
+              <input type="number" name="port" id="settings-port" min="1" max="65535" />
+            </label>
+            <label data-settings-ssh-only>
+              <span>Username</span>
+              <input type="text" name="username" id="settings-username" />
+            </label>
+            <label data-settings-ssh-only>
+              <span>Auth Method</span>
+              <select name="authMethod" id="settings-auth-method">
+                <option value="password">Password</option>
+                <option value="key">SSH Key</option>
+              </select>
+            </label>
+            <label data-settings-ssh-only>
+              <span>Password</span>
+              <input type="password" name="password" id="settings-password" autocomplete="current-password" />
+              <small data-password-status>Stored password will remain unless changed.</small>
+            </label>
+            <label data-settings-ssh-only>
+              <span>Private Key Path</span>
+              <input type="text" name="privateKeyPath" id="settings-private-key" />
+            </label>
+            <label>
+              <span>Refresh Interval (seconds)</span>
+              <input type="number" name="refreshIntervalSeconds" id="settings-refresh" min="5" />
+            </label>
+            <label>
+              <span>Network Interface</span>
+              <input type="text" name="networkInterface" id="settings-network" />
+            </label>
+            <label>
+              <span>Dashboard URL (optional)</span>
+              <input type="text" name="dashboardUrl" id="settings-dashboard" />
+            </label>
+            <label data-settings-ws-only>
+              <span>WebSocket URL</span>
+              <input
+                type="text"
+                name="wsUrl"
+                id="settings-ws-url"
+                placeholder="ws://192.168.1.207:8510"
+              />
+            </label>
+          </div>
+          <div class="settings-checkbox-group">
+            <label class="settings-checkbox" for="settings-show-dockers">
+              <input type="checkbox" name="showDockerContainers" id="settings-show-dockers" checked />
+              Show Docker containers
+            </label>
+            <label class="settings-checkbox" for="settings-show-vms">
+              <input type="checkbox" name="showVmList" id="settings-show-vms" checked />
+              Show running VMs
+            </label>
+            <label class="settings-checkbox" for="settings-show-stopped">
+              <input type="checkbox" name="showStoppedServices" id="settings-show-stopped" />
+              Show stopped services
+            </label>
+            <label class="settings-checkbox" for="settings-clear-password">
+              <input type="checkbox" name="clearPassword" id="settings-clear-password" />
+              Clear stored password
+            </label>
+          </div>
+          <div class="settings-panel__footer">
+            <p class="settings-message" data-settings-message></p>
+            <div class="settings-actions">
+              <button type="button" class="ghost-button" id="settings-cancel">Cancel</button>
+              <button type="submit" class="primary-button">Save Changes</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="renderer.js" defer></script>
+  </body>
+</html>
+

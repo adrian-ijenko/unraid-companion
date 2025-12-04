@@ -1,0 +1,37 @@
+{
+  "name": "unraid-companion",
+  "version": "0.1.0",
+  "description": "Electron tray companion that surfaces Unraid health stats.",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win --x64"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "type": "commonjs",
+  "dependencies": {
+    "ssh2": "^1.17.0"
+  },
+  "devDependencies": {
+    "electron": "^39.2.3",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.unraid.companion",
+    "productName": "Unraid Companion",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "src/**/*",
+      "public/**/*",
+      "config/config.example.json",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis"
+    }
+  }
+}

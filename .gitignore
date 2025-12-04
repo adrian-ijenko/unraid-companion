@@ -1,0 +1,7 @@
+node_modules/
+config/config.json
+config/config.local.json
+*.log
+release/
+dist/
+win-unpacked/

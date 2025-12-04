@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  unraid-companion-ws:
+    build:
+      context: ./ws-server
+      dockerfile: Dockerfile
+    image: unraid-companion-ws
+    container_name: unraid-companion-ws
+    restart: unless-stopped
+    environment:
+      NET_IFACE: bond0           # change if your main NIC is br0/eth0/etc
+      UNRAID_HOST: 192.168.1.207 # change to your Unraid host/IP for WebUI URLs
+    ports:
+      - "8510:8510"
+    volumes:
+      - /sys:/sys:ro
+      - /mnt:/mnt:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run/libvirt:/var/run/libvirt
+    privileged: true
+
+
