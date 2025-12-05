@@ -4,7 +4,12 @@ const fs = require('fs');
 const os = require('os');
 const { Client } = require('ssh2');
 
-const CONFIG_PATH = path.join(__dirname, '..', 'config', 'config.json');
+// In dev we keep config in the project `config` folder.
+// In packaged builds we must write outside the ASAR, so we use the per-user data directory.
+const CONFIG_DIR = app.isPackaged
+  ? path.join(app.getPath('userData'), 'config')
+  : path.join(__dirname, '..', 'config');
+const CONFIG_PATH = path.join(CONFIG_DIR, 'config.json');
 const CONFIG_TEMPLATE = path.join(__dirname, '..', 'config', 'config.example.json');
 const MIN_REFRESH_MS = 5_000;
 
